@@ -12,12 +12,12 @@ const validationErrors = {
 
 const validationSchema = Yup.object().shape({
   fullName: Yup.string()
-    .min(3, validationErrors.fullNameTooShort)
-    .max(20, validationErrors.fullNameTooLong)
-    .required('Full name is required'),
+      .min(3, validationErrors.fullNameTooShort)
+      .max(20, validationErrors.fullNameTooLong)
+      .required('Full name is required'),
   size: Yup.string()
-    .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
-    .required('Size is required'),
+      .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
+      .required('Size is required'),
 });
 
 // 👇 This array could help you construct your checkboxes using .map in the JSX.
@@ -47,6 +47,28 @@ export default function Form() {
       }
      }, [success]);
 
+
+       // This function validates the fullName field in real-time
+      const validateFullName = async (value) => {
+    try {
+      await Yup.reach(validationSchema, 'fullName').validate(value)
+      setErrors((prevErrors) => ({ ...prevErrors, fullName: '' })) // clear error
+    } catch (error) {
+      setErrors((prevErrors) => ({ ...prevErrors, fullName: error.message })) // set error message
+    }
+  }
+
+
+  // This function validates the size field in real-time
+  const validateSize = async (value) => {
+    try {
+      await Yup.reach(validationSchema, 'size').validate(value)
+      setErrors((prevErrors) => ({ ...prevErrors, size: '' })) // clear error
+    } catch (error) {
+      setErrors((prevErrors) => ({ ...prevErrors, size: error.message })) // set error message
+    }
+  }
+
     const handleToppingChange = (topping) => {
      setSelectedToppings((prev) =>
       prev.includes(topping)
@@ -66,6 +88,7 @@ export default function Form() {
         await validationSchema.validate(data, { abortEarly: false });
         // If validation passes, you can make your API call here
         console.log('Order submitted:', data);
+        
         setSuccess(true);
         setFailure(false);
         setErrors({});
@@ -77,8 +100,11 @@ export default function Form() {
           L: 'large'
         };
 
-        // Construct the success message
-        setSuccessMessage(`Thank you for your order, ${fullName}! Your ${sizeMapping[size]} pizza with ${selectedToppings.length} topping${selectedToppings.length !== 1 ? 's' : ''} is on the way.`);
+        const toppingText = selectedToppings.length === 0 ? 'with no toppings' : `with ${selectedToppings.length} topping${selectedToppings.length !== 1 ? 's' : ''}`;
+
+        setSuccessMessage(`Thank you for your order, ${fullName}! Your ${sizeMapping[size]} pizza ${toppingText} is on the way.`);
+
+
         // Reset form fields
         setFullName(''); // Resetting full name
         setSize(''); // Resetting size
@@ -109,20 +135,30 @@ export default function Form() {
            id="fullName" 
            type="text"
            value={fullName}
-           onChange={(e) => setFullName(e.target.value)}
+           onChange={(e) => {
+            setFullName(e.target.value)
+            validateFullName(e.target.value) // validate instantly
+
+           }}
             />
-           
+           {errors.fullName && <div className='error'>{errors.fullName}</div>}
         </div>
-        {errors.fullName && <div className='error'>Bad value</div>}
+        
+        
       </div>
 
       <div className="input-group">
         <div>
-          <label htmlFor="size">Size</label><br />
+          <label htmlFor="size">Size</label>
+          <br />
           <select 
             id="size" 
             value={size}
-          onChange={(e) => setSize(e.target.value)} >
+            onChange={(e) => { 
+              setSize(e.target.value)
+              validateSize(e.target.value) // validate instantly
+            }}
+            >
           <option value="">----Choose Size----</option>
            <option value="S">Small</option>
            <option value="M">Medium</option>
@@ -130,7 +166,7 @@ export default function Form() {
             {/* Fill out the missing options */}
           </select>
         </div>
-        {errors.size && <div className='error'>Bad value</div>}
+        {errors.size && <div className='error'>{errors.size}</div>}
       </div>
 
       <div className="input-group">
@@ -154,7 +190,12 @@ export default function Form() {
 </fieldset>
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
-      <input type="submit" disabled={!fullName || !size || Object.keys(errors).length > 0} />
+      <input type="submit"
+       disabled={
+        !fullName || 
+        !size || 
+        Object.keys(errors).some(key => errors[key]) // disabled if there are errors
+        } />
     </form>
   )
 }
