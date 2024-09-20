@@ -140,8 +140,8 @@ export default function Form() {
             validateFullName(e.target.value) // validate instantly
 
            }}
-            />
-           {errors.fullName && <div className='error'>{errors.fullName}</div>}
+            />{errors.fullName && <div className='error'>{errors.fullName}</div>}
+           
         </div>
         
         
