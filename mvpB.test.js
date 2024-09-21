@@ -58,22 +58,22 @@ describe('Sprint 7 Challenge Learner Tests', () => {
           // Render the HelloWorld component
           render(<HelloWorld />);
   
-          // Test case 1: renders a link that reads "Home"
+              // Test case 1: renders a link that reads "Home"
           expect(screen.queryByText('Home')).toBeInTheDocument();
   
-          // Test case 2: renders a link that reads "About"
+              // Test case 2: renders a link that reads "About"
           expect(screen.queryByText('About')).toBeInTheDocument();
   
-          // Test case 3: renders a link that reads "Blog"
+              // Test case 3: renders a link that reads "Blog"
           expect(screen.queryByText('Blog')).toBeInTheDocument();
   
-          // Test case 4: renders a text that reads "The Truth"
+              // Test case 4: renders a text that reads "The Truth"
           expect(screen.queryByText('The Truth')).toBeInTheDocument();
   
-          // Test case 5: renders a text that reads "JavaScript is pretty awesome"
+              // Test case 5: renders a text that reads "JavaScript is pretty awesome"
           expect(screen.queryByText('JavaScript is pretty awesome')).toBeInTheDocument();
   
-          // Test case 6: renders a text that includes "javaScript is pretty" (exact = false)
+              // Test case 6: renders a text that includes "javaScript is pretty" (exact = false)
           expect(screen.getByText(/javaScript is pretty/i)).toBeInTheDocument(); // Use regex for case-insensitive match
       });
   });

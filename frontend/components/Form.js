@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import *as Yup from 'yup'
+import * as Yup from 'yup'
 
 // 👇 Here are the validation errors you will use with Yup.
 const validationErrors = {
@@ -48,18 +48,15 @@ export default function Form() {
      }, [success]);
 
 
-       // This function validates the fullName field in real-time
-      const validateFullName = async (value) => {
-    try {
-      await Yup.reach(validationSchema, 'fullName').validate(value)
-      setErrors((prevErrors) => ({ ...prevErrors, fullName: '' })) // clear error
-    } catch (error) {
-      setErrors((prevErrors) => ({ ...prevErrors, fullName: error.message })) // set error message
-    }
-  }
+          // Inside your validateFullName function
+   const validateFullName = (value) => {
+   Yup.reach(validationSchema, 'fullName').validate(value.trim())
+    .then(() => setErrors((prevErrors) => ({ ...prevErrors, fullName: '' })))
+    .catch(err => setErrors((prevErrors) => ({ ...prevErrors, fullName: err.message })));
+}
 
 
-  // This function validates the size field in real-time
+        // This function validates the size field in real-time
   const validateSize = async (value) => {
     try {
       await Yup.reach(validationSchema, 'size').validate(value)
@@ -69,9 +66,10 @@ export default function Form() {
     }
   }
 
-    const handleToppingChange = (topping) => {
+
+  const handleToppingChange = (topping) => {
      setSelectedToppings((prev) =>
-      prev.includes(topping)
+     prev.includes(topping)
         ? prev.filter((t) => t !== topping)
         : [...prev, topping]
        );
@@ -79,12 +77,11 @@ export default function Form() {
 
     
 
-    const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = { fullName, size, selectedToppings };
+  const handleSubmit = async (e) => {
+     e.preventDefault();
+  const data = { fullName, size, selectedToppings };
     
-
-    try {
+      try {
         await validationSchema.validate(data, { abortEarly: false });
         // If validation passes, you can make your API call here
         console.log('Order submitted:', data);
@@ -94,21 +91,24 @@ export default function Form() {
         setErrors({});
          
         
-        const sizeMapping = {
+  const sizeMapping = {
           S: 'small',
           M: 'medium',
           L: 'large'
         };
 
-        const toppingText = selectedToppings.length === 0 ? 'with no toppings' : `with ${selectedToppings.length} topping${selectedToppings.length !== 1 ? 's' : ''}`;
 
-        setSuccessMessage(`Thank you for your order, ${fullName}! Your ${sizeMapping[size]} pizza ${toppingText} is on the way.`);
+  const toppingText = selectedToppings.length === 0 ? 
+    'with no toppings' : `with ${selectedToppings.length} 
+    topping${selectedToppings.length !== 1 ? 's' : ''}`;
+
+  setSuccessMessage(`Thank you for your order, ${fullName}! Your ${sizeMapping[size]} pizza ${toppingText} is on the way.`);
 
 
-        // Reset form fields
-        setFullName(''); // Resetting full name
-        setSize(''); // Resetting size
-        setSelectedToppings([]); // Resetting selected toppings
+             // Reset form fields
+        setFullName('');             // Resetting full name
+        setSize('');                // Resetting size
+        setSelectedToppings([]);    // Resetting selected toppings
 
        } catch (err) {
         const validationErrors = {};
@@ -131,20 +131,17 @@ export default function Form() {
         <div>
           <label htmlFor="fullName">Full Name</label><br />
           <input 
-           placeholder="Type full name"
-           id="fullName" 
-           type="text"
-           value={fullName}
-           onChange={(e) => {
-            setFullName(e.target.value)
-            validateFullName(e.target.value) // validate instantly
-
-           }}
-            />{errors.fullName && <div className='error'>{errors.fullName}</div>}
-           
+            placeholder="Type full name"
+            id="fullName" 
+            type="text"
+            value={fullName}
+            onChange={(e) => {
+              setFullName(e.target.value);
+              validateFullName(e.target.value);  // Immediate validation
+            }}
+          />
+              {errors.fullName && <div className='error'>{errors.fullName}</div>}
         </div>
-        
-        
       </div>
 
       <div className="input-group">
@@ -163,7 +160,7 @@ export default function Form() {
            <option value="S">Small</option>
            <option value="M">Medium</option>
            <option value="L">Large</option>
-            {/* Fill out the missing options */}
+              {/* Fill out the missing options */}
           </select>
         </div>
         {errors.size && <div className='error'>{errors.size}</div>}
@@ -171,7 +168,7 @@ export default function Form() {
 
       <div className="input-group">
         {/* 👇 Maybe you could generate the checkboxes dynamically */}
-     <fieldset>
+      <fieldset>
       <legend>Toppings:</legend>
         {toppings.map((topping) => (
         <label key={topping.topping_id}>
@@ -186,8 +183,8 @@ export default function Form() {
       <br/>
     </label>
     
-  ))}
-</fieldset>
+       ))}
+      </fieldset>
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
       <input type="submit"
